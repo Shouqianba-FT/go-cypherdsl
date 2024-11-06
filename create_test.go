@@ -66,14 +66,16 @@ func TestNewIndex(t *testing.T) {
 	_, err := NewIndex(nil)
 	req.NotNil(err)
 
-	conf := &IndexConfig{Type: "", Fields: nil}
+	conf := &IndexConfig{Fields: nil}
 
 	//check empty type
 	_, err = NewIndex(conf)
 	req.NotNil(err)
 
 	//check nil fields
-	conf.Type = "test"
+	conf.PathBuilder = Path().V(V{Name: "n", Type: "test"}).Build()
+	conf.Index = "i_test_id"
+	conf.Name = "n"
 	_, err = NewIndex(conf)
 	req.NotNil(err)
 
@@ -86,13 +88,13 @@ func TestNewIndex(t *testing.T) {
 	conf.Fields = []string{"one"}
 	cypher, err := NewIndex(conf)
 	req.Nil(err)
-	req.EqualValues("INDEX ON :test(one)", cypher.ToString())
+	req.EqualValues("INDEX i_test_id FOR (n:test) ON (n.one)", cypher.ToString())
 
 	//check composite index
 	conf.Fields = []string{"one", "two"}
 	cypher, err = NewIndex(conf)
 	req.Nil(err)
-	req.EqualValues("INDEX ON :test(one,two)", cypher.ToString())
+	req.EqualValues("INDEX i_test_id FOR (n:test) ON (n.one,n.two)", cypher.ToString())
 }
 
 func TestNewNode(t *testing.T) {
