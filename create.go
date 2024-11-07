@@ -60,7 +60,7 @@ func NewIndex(index *IndexConfig) (CreateQuery, error) {
 		return "", err
 	}
 
-	query := fmt.Sprintf("INDEX %s FOR %s ON (", index.Index, builderQuery)
+	query := fmt.Sprintf("INDEX %s IF NOT EXISTS FOR %s ON (", index.Index, builderQuery)
 
 	for _, field := range index.Fields {
 		query += fmt.Sprintf("%s.%s,", index.Name, field)
@@ -99,7 +99,7 @@ func NewConstraint(constraint *ConstraintConfig) (CreateQuery, error) {
 		return "", errors.New("can only be unique or exists per call")
 	}
 
-	root := fmt.Sprintf("CONSTRAINT FOR (%s:%s) REQUIRE ", constraint.Name, constraint.Type)
+	root := fmt.Sprintf("CONSTRAINT IF NOT EXISTS FOR (%s:%s) REQUIRE ", constraint.Name, constraint.Type)
 
 	if constraint.Unique {
 		root += fmt.Sprintf("%s.%s IS UNIQUE", constraint.Name, constraint.Field)
