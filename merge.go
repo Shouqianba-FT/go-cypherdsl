@@ -56,6 +56,12 @@ type MergeSetConfig struct {
 
 	//new value if its a function, do not include
 	TargetFunction *FunctionConfig
+
+	//if the target is a map
+	TargetMap *Params
+
+	//defines whether a variable is being set equal to or mutated
+	Operation SetOperation
 }
 
 func (m *MergeSetConfig) ToString() (string, error) {
@@ -63,33 +69,45 @@ func (m *MergeSetConfig) ToString() (string, error) {
 		return "", errors.New("name can not be empty")
 	}
 
-	if m.Member == "" {
-		return "", errors.New("member can not be empty")
+	if m.TargetMap == nil && m.Member == "" {
+		return "", errors.New("target map or member has to be defined")
 	}
 
-	if m.Target == nil && m.TargetFunction == nil {
-		return "", errors.New("target or target function has to be defined")
+	query := ""
+
+	if m.TargetMap != nil {
+		if m.Operation == "" {
+			return "", errors.New("operation has to be defined when use target map")
+		}
+		query += fmt.Sprintf("%s %s %s", m.Name, m.Operation, m.TargetMap.ToCypherMap())
 	}
 
-	if m.Target != nil && m.TargetFunction != nil {
-		return "", errors.New("target and target function can not both be defined")
-	}
-
-	query := fmt.Sprintf("%s.%s = ", m.Name, m.Member)
-
-	if m.Target != nil {
-		str, err := cypherizeInterface(m.Target)
-		if err != nil {
-			return "", err
+	if m.Member != "" {
+		if m.Target == nil && m.TargetFunction == nil {
+			return "", errors.New("target or target function has to be defined")
 		}
 
-		return query + str, nil
-	} else {
-		str, err := m.TargetFunction.ToString()
-		if err != nil {
-			return "", err
+		if m.Target != nil && m.TargetFunction != nil {
+			return "", errors.New("target and target function can not both be defined")
 		}
 
-		return query + str, nil
+		query += fmt.Sprintf("%s.%s = ", m.Name, m.Member)
+
+		if m.Target != nil {
+			str, err := cypherizeInterface(m.Target)
+			if err != nil {
+				return "", err
+			}
+
+			return query + str, nil
+		} else {
+			str, err := m.TargetFunction.ToString()
+			if err != nil {
+				return "", err
+			}
+
+			return query + str, nil
+		}
 	}
+	return query, nil
 }
