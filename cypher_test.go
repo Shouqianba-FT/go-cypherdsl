@@ -30,7 +30,7 @@ func TestQueryBuilder(t *testing.T) {
 	cypher, err = QB().
 		Match(Path().V(V{Name: "n"}).Build()).
 		Return(false, ReturnPart{Name: "n"}).
-		OrderBy(OrderByConfig{Name: "n", Member: "age", Desc: true}).
+		OrderBy(OrderByConfig{Type: "n", Name: "age", Desc: true}).
 		Limit(5).
 		ToCypher()
 	req.Nil(err)

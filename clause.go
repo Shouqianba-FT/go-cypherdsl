@@ -20,7 +20,7 @@ type Cypher interface {
 	QueryCompleter
 }
 
-//complete
+// complete
 type Match interface {
 	Match(p *PathBuilder) Cypher
 }
@@ -29,32 +29,32 @@ type OptionalMatch interface {
 	OptionalMatch(p *PathBuilder) Cypher
 }
 
-//complete
+// complete
 type Create interface {
 	Create(CreateQuery, error) Cypher
 }
 
-//complete
+// complete
 type Where interface {
 	Where(cb ConditionOperator) Cypher
 }
 
-//complete
+// complete
 type Merge interface {
 	Merge(mergeConf *MergeConfig) Cypher
 }
 
-//complete
+// complete
 type Return interface {
 	Return(distinct bool, parts ...ReturnPart) Cypher
 }
 
-//complete
+// complete
 type Delete interface {
 	Delete(detach bool, params ...string) Cypher
 }
 
-//complete
+// complete
 type Set interface {
 	Set(sets ...SetConfig) Cypher
 }
@@ -93,4 +93,5 @@ type CustomCypher interface {
 
 type QueryCompleter interface {
 	ToCypher() (string, error)
+	Build() (string, error)
 }

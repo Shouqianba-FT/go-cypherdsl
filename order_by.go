@@ -6,18 +6,24 @@ import (
 )
 
 type OrderByConfig struct {
-	Name   string
-	Member string
-	Desc   bool
+	Type string
+	Name string
+	Desc bool
 }
 
 func (o *OrderByConfig) ToString() (string, error) {
-	if o.Name == "" || o.Member == "" {
-		return "", errors.New("name and member have to be defined")
+	if o.Name == "" {
+		return "", errors.New("member have to be defined")
+	}
+	query := ""
+	if o.Type != "" {
+		query = fmt.Sprintf("%s.%s", o.Type, o.Name)
+	} else {
+		query = o.Name
 	}
 
 	if o.Desc {
-		return fmt.Sprintf("%s.%s DESC", o.Name, o.Member), nil
+		query += " DESC"
 	}
-	return fmt.Sprintf("%s.%s", o.Name, o.Member), nil
+	return query, nil
 }
