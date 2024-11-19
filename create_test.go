@@ -49,14 +49,14 @@ func TestNewConstraint(t *testing.T) {
 	testConf.Field = "s"
 	cypher, err := NewConstraint(testConf)
 	req.Nil(err)
-	req.EqualValues("CONSTRAINT ON (t:s) ASSERT t.s IS UNIQUE", cypher.ToString())
+	req.EqualValues("CONSTRAINT IF NOT EXISTS FOR (t:s) REQUIRE t.s IS UNIQUE", cypher.ToString())
 
 	//test exists
 	testConf.Exists = true
 	testConf.Unique = false
 	cypher, err = NewConstraint(testConf)
 	req.Nil(err)
-	req.EqualValues("CONSTRAINT ON (t:s) ASSERT exists(t.s)", cypher.ToString())
+	req.EqualValues("CONSTRAINT IF NOT EXISTS FOR (t:s) REQUIRE t.s IS NOT NULL", cypher.ToString())
 }
 
 func TestNewIndex(t *testing.T) {
@@ -88,13 +88,13 @@ func TestNewIndex(t *testing.T) {
 	conf.Fields = []string{"one"}
 	cypher, err := NewIndex(conf)
 	req.Nil(err)
-	req.EqualValues("INDEX i_test_id FOR (n:test) ON (n.one)", cypher.ToString())
+	req.EqualValues("INDEX i_test_id IF NOT EXISTS FOR (n:test) ON (n.one)", cypher.ToString())
 
 	//check composite index
 	conf.Fields = []string{"one", "two"}
 	cypher, err = NewIndex(conf)
 	req.Nil(err)
-	req.EqualValues("INDEX i_test_id FOR (n:test) ON (n.one,n.two)", cypher.ToString())
+	req.EqualValues("INDEX i_test_id IF NOT EXISTS FOR (n:test) ON (n.one,n.two)", cypher.ToString())
 }
 
 func TestNewNode(t *testing.T) {
