@@ -7,12 +7,12 @@ import (
 )
 
 type UnwindConfig struct {
-	Slice []interface{}
+	Slice interface{}
 	As    string
 }
 
 func (u *UnwindConfig) ToString() (string, error) {
-	if u.Slice == nil || len(u.Slice) == 0 {
+	if u.Slice == nil {
 		return "", errors.New("slice in unwind can not be empty")
 	}
 
@@ -20,18 +20,26 @@ func (u *UnwindConfig) ToString() (string, error) {
 		return "", errors.New("AS has to be defined")
 	}
 
-	query := "["
+	switch v := u.Slice.(type) {
+	case []interface{}:
+		query := "["
 
-	for _, i := range u.Slice {
-		str, err := cypherizeInterface(i)
+		for _, i := range v {
+			str, err := cypherizeInterface(i)
+			if err != nil {
+				return "", err
+			}
+
+			query += fmt.Sprintf("%s,", str)
+		}
+
+		query = strings.TrimSuffix(query, ",")
+		return query + fmt.Sprintf("] AS %s", u.As), nil
+	default:
+		query, err := cypherizeInterface(v)
 		if err != nil {
 			return "", err
 		}
-
-		query += fmt.Sprintf("%s,", str)
+		return query + " AS " + u.As, nil
 	}
-
-	query = strings.TrimSuffix(query, ",")
-
-	return query + fmt.Sprintf("] AS %s", u.As), nil
 }
