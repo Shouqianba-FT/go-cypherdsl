@@ -6,6 +6,10 @@ import (
 )
 
 func TestMergeSetConfig_ToString(t *testing.T) {
+	var err error
+	var cypher string
+
+	req := require.New(t)
 	t1 := MergeSetConfig{Name: "test", Member: "ttt", Target: 1}
 	t2 := MergeSetConfig{Name: "test", Member: "ttt", TargetFunction: &FunctionConfig{
 		Name: "test",
@@ -16,9 +20,12 @@ func TestMergeSetConfig_ToString(t *testing.T) {
 	t5 := MergeSetConfig{Name: "test", Member: "ttt"}
 	t6 := MergeSetConfig{Name: "test", Member: "ttt", TargetFunction: &FunctionConfig{Name: "test"}, Target: 1}
 
-	req := require.New(t)
-	var err error
-	var cypher string
+	params, err := ParamsFromMap(map[string]interface{}{
+		"name": "li",
+		"age":  14,
+	})
+	req.Nil(err)
+	t7 := MergeSetConfig{Name: "n", TargetMap: params, Operation: SetMutate}
 
 	//name member normal target
 	cypher, err = t1.ToString()
@@ -46,6 +53,9 @@ func TestMergeSetConfig_ToString(t *testing.T) {
 	_, err = t6.ToString()
 	req.NotNil(err)
 
+	cypher, err = t7.ToString()
+	req.Nil(err)
+	req.EqualValues("n += {name:'li',age:14}", cypher)
 }
 
 func TestMergeConfig_ToString(t *testing.T) {

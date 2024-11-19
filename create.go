@@ -24,7 +24,9 @@ func NewNode(builder *PathBuilder) (CreateQuery, error) {
 }
 
 type IndexConfig struct {
-	Type   string
+	*PathBuilder
+	Name   string
+	Index  string
 	Fields []string
 }
 
@@ -33,8 +35,12 @@ func NewIndex(index *IndexConfig) (CreateQuery, error) {
 		return "", errors.New("index can not be nil")
 	}
 
-	if index.Type == "" {
-		return "", errors.New("type can not be empty")
+	if index.Index == "" {
+		return "", errors.New("index can not be empty")
+	}
+
+	if index.Name == "" {
+		return "", errors.New("name can not be empty")
 	}
 
 	if index.Fields == nil {
@@ -45,10 +51,19 @@ func NewIndex(index *IndexConfig) (CreateQuery, error) {
 		return "", errors.New("fields can not be empty")
 	}
 
-	query := fmt.Sprintf("INDEX ON :%s(", index.Type)
+	if index.PathBuilder == nil {
+		return "", errors.New("builder can not be nil")
+	}
+
+	builderQuery, err := index.PathBuilder.ToCypher()
+	if err != nil {
+		return "", err
+	}
+
+	query := fmt.Sprintf("INDEX %s IF NOT EXISTS FOR %s ON (", index.Index, builderQuery)
 
 	for _, field := range index.Fields {
-		query += fmt.Sprintf("%s,", field)
+		query += fmt.Sprintf("%s.%s,", index.Name, field)
 	}
 
 	return CreateQuery(strings.TrimSuffix(query, ",") + ")"), nil
@@ -84,12 +99,12 @@ func NewConstraint(constraint *ConstraintConfig) (CreateQuery, error) {
 		return "", errors.New("can only be unique or exists per call")
 	}
 
-	root := fmt.Sprintf("CONSTRAINT ON (%s:%s) ASSERT ", constraint.Name, constraint.Type)
+	root := fmt.Sprintf("CONSTRAINT IF NOT EXISTS FOR (%s:%s) REQUIRE ", constraint.Name, constraint.Type)
 
 	if constraint.Unique {
 		root += fmt.Sprintf("%s.%s IS UNIQUE", constraint.Name, constraint.Field)
 	} else {
-		root += fmt.Sprintf("exists(%s.%s)", constraint.Name, constraint.Field)
+		root += fmt.Sprintf("%s.%s IS NOT NULL", constraint.Name, constraint.Field)
 	}
 
 	return CreateQuery(root), nil

@@ -12,39 +12,56 @@ func TestOrderByConfig_ToString(t *testing.T) {
 
 	//name not defined
 	t1 := OrderByConfig{
-		Member: "da",
+		Type: "da",
 	}
 	_, err = t1.ToString()
 	req.NotNil(err)
 
-	//member not defined
+	//Type not defined
 	t2 := OrderByConfig{
 		Name: "da",
 	}
 	_, err = t2.ToString()
-	req.NotNil(err)
+	req.Nil(err)
 
-	//both member and name not defined
+	//both type and name not defined
 	t3 := OrderByConfig{}
 	_, err = t3.ToString()
 	req.NotNil(err)
 
 	//proper
 	t4 := OrderByConfig{
-		Name:   "n",
-		Member: "m",
+		Type: "n",
+		Name: "name",
 	}
 	cypher, err = t4.ToString()
 	req.Nil(err)
-	req.EqualValues("n.m", cypher)
+	req.EqualValues("n.name", cypher)
 
 	//proper
 	t5 := OrderByConfig{
-		Name:   "n",
-		Member: "m",
-		Desc:   true,
+		Type: "n",
+		Name: "name",
+		Desc: true,
 	}
 	cypher, err = t5.ToString()
 	req.Nil(err)
-	req.EqualValues("n.m DESC", cypher)
+	req.EqualValues("n.name DESC", cypher)
+
+	// type not defined
+	t6 := OrderByConfig{
+		Name: "name",
+		Desc: true,
+	}
+	cypher, err = t6.ToString()
+	req.Nil(err)
+	req.EqualValues("name DESC", cypher)
+
+	// type and desc not defined
+	t7 := OrderByConfig{
+		Name: "name",
+	}
+	cypher, err = t7.ToString()
+	req.Nil(err)
+	req.EqualValues("name", cypher)
 }

@@ -194,7 +194,7 @@ func (q *QueryBuilder) Remove(removes ...RemoveConfig) Cypher {
 
 func (q *QueryBuilder) OrderBy(orderBys ...OrderByConfig) Cypher {
 	if len(orderBys) == 0 {
-		q.addError(errors.New("removes can not be empty"))
+		q.addError(errors.New("order by config can not be empty"))
 	}
 
 	query := "ORDER BY"
@@ -271,6 +271,10 @@ func (q *QueryBuilder) Cypher(c string) Cypher {
 }
 
 func (q *QueryBuilder) ToCypher() (string, error) {
+	return q.build()
+}
+
+func (q *QueryBuilder) Build() (string, error) {
 	return q.build()
 }
 
