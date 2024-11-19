@@ -118,7 +118,8 @@ func (s *SetConfig) ToString() (string, error) {
 	//already validated that only one target type is set
 
 	//validate target node combo
-	if s.Member == "" && (s.Target != nil || s.TargetFunction != nil) {
+	// FIX: allow setting a node to a map reference
+	if s.Member == "" && s.TargetFunction != nil {
 		//cant do this kind of operation directly on a node
 		return "", errors.New("can only set node equal to a map")
 	}
