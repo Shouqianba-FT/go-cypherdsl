@@ -1,8 +1,9 @@
 package go_cypherdsl
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnwindConfig_ToString(t *testing.T) {
@@ -36,4 +37,17 @@ func TestUnwindConfig_ToString(t *testing.T) {
 	conf = UnwindConfig{}
 	_, err = conf.ToString()
 	req.NotNil(err)
+}
+
+func TestUnwindConfig_StringParam(t *testing.T) {
+	req := require.New(t)
+
+	//{a,b} AS A
+	conf := UnwindConfig{
+		Slice: ParamString("$props"),
+		As:    "properties",
+	}
+	cypher, err := conf.ToString()
+	req.Nil(err)
+	req.EqualValues("$props AS properties", cypher)
 }
