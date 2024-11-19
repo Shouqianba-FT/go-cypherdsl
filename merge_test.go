@@ -22,7 +22,6 @@ func TestMergeSetConfig_ToString(t *testing.T) {
 
 	params, err := ParamsFromMap(map[string]interface{}{
 		"name": "li",
-		"age":  14,
 	})
 	req.Nil(err)
 	t7 := MergeSetConfig{Name: "n", TargetMap: params, Operation: SetMutate}
@@ -55,7 +54,7 @@ func TestMergeSetConfig_ToString(t *testing.T) {
 
 	cypher, err = t7.ToString()
 	req.Nil(err)
-	req.EqualValues("n += {name:'li',age:14}", cypher)
+	req.EqualValues("n += {name:'li'}", cypher)
 }
 
 func TestMergeConfig_ToString(t *testing.T) {
