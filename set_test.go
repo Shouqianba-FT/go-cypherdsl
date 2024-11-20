@@ -1,8 +1,9 @@
 package go_cypherdsl
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestSetConfig_ToString(t *testing.T) {
@@ -158,6 +159,7 @@ func TestSetConfig_ToString(t *testing.T) {
 		Operation: SetEqualTo,
 		Target:    1,
 	}
-	_, err = e10.ToString()
-	req.NotNil(err)
+	cypher, err = e10.ToString()
+	req.Nil(err)
+	req.EqualValues("t = 1", cypher)
 }
